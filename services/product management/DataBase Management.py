@@ -1,13 +1,19 @@
 import mysql.connector
 
+user=input("User: ")
+password=input("Password: ")
 class DataBase:
     def __init__(self):
         self.db = mysql.connector.connect(
             host="127.0.0.1",
-            user="root",
-            password="Ahmed#123456789",
+            user=user,
+            password=password,
             database="online_shopping"
         )
+        if self.db.is_connected():
+            print("Connected Successfully")
+        else:
+            print("Failed to connect")
         self.cursor = self.db.cursor()
 
     def get_products(self):
