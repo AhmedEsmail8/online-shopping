@@ -1,19 +1,19 @@
 import mysql.connector
-from Product import Product
-from Image import Image
+from Models import *
 
 # user=input("User: ")
 # password=input("Password: ")
-
 user = 'root'
 password = 'Ahmed#123456789'
+
+
 class DataBase:
     def __init__(self):
         self.db = mysql.connector.connect(
             host="127.0.0.1",
             user=user,
             password=password,
-            database="online_shopping"
+            database="products_database"
         )
 
         if self.db.is_connected():
@@ -23,14 +23,21 @@ class DataBase:
 
         self.cursor = self.db.cursor()
 
-    #<editor-fold desc="products">
-
+    # <editor-fold desc="products">
     def get_products(self):
         self.cursor.execute("SELECT * FROM product")
         result = self.cursor.fetchall()
+        # products = []
+        products_models = []
         for x in result:
-            print(x)
-        return result
+            # product = Product(price=x[1], name=x[2], description=x[3], category=x[4], id=x[0])
+            images = self.get_product_images(x[0])
+            images = [i[0] for i in images]
+            products_models.append(
+                ProductModel(id=x[0], price=x[1], name=x[2], category=x[4], images=images, description=x[3]))
+            # products.append(product)
+
+        return products_models
 
     def add_product(self, product):
         sql = "INSERT INTO product (price, name, description, category) VALUES (%s, %s, %s, %s)"
@@ -47,9 +54,8 @@ class DataBase:
         else:
             print("Failed to insert product")
 
-
-    def delete_product(self, id):
-        sql = f"DELETE FROM product WHERE id = {id}"
+    def delete_product(self, product_id):
+        sql = f"DELETE FROM product WHERE id = {product_id}"
         self.cursor.execute(sql)
         self.db.commit()
 
@@ -63,7 +69,7 @@ class DataBase:
         except mysql.connector.Error as err:
             print(f"Error: {err}")
 
-    #</editor-fold>
+    # </editor-fold>
 
     # <editor-fold desc="images">
     def add_image(self, file_location):
@@ -98,10 +104,11 @@ class DataBase:
         except mysql.connector.Error as err:
             print(f"Error: {err}")
 
-    def delete_image(self, id):
-        sql = f"DELETE FROM image WHERE id = {id}"
+    def delete_image(self, image_id):
+        sql = f"DELETE FROM image WHERE id = {image_id}"
         self.cursor.execute(sql)
         self.db.commit()
+
     # </editor-fold>
 
     def add_image_to_product(self, image_id, product_id):
@@ -133,7 +140,8 @@ class DataBase:
         return result
 
 
-d = DataBase()
+# d = DataBase()
+# d.get_products()
 # product = Product(price=180, name="white polo Tshirt", description="white polo Tshirt", category="men")
 # image.id = d.add_image(image.file_location)
 # product.id = d.add_product(product)

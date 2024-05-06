@@ -9,4 +9,5 @@ class User:
         self.id = id
 
     def __str__(self):
-        return f"User: {self.first_name} {self.last_name}, Age: {self.age}, Email: {self.email}, Mobile Number: {self.mobile_number}, ID: {self.id}"
+        return f"User: {self.first_name} {self.last_name}, Age: {self.age}, Email: {self.email}, " \
+               f"Mobile Number: {self.mobile_number}, ID: {self.id}"

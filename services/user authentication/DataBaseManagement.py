@@ -1,10 +1,11 @@
 import mysql.connector
+from Models import *
 from user import User
 # user=input("User: ")
 # password=input("Password: ")
 
 user = 'root'
-password = 'yasmine123@'
+password = 'Ahmed#123456789'
 class DataBase:
     def __init__(self):
         self.db = mysql.connector.connect(
@@ -25,9 +26,13 @@ class DataBase:
     def get_users(self):
         self.cursor.execute("SELECT * FROM users")
         result = self.cursor.fetchall()
+        users = []
         for x in result:
-            print(x)
-        return result
+            user_model = UserModel(id=x[0], email=x[1], password=x[2], first_name=x[3], last_name=x[4], age=x[5],
+                                   mobile_number=x[6])
+            print(user_model)
+            users.append(user_model)
+        return users
 
     def add_user(self, user):
         sql = "INSERT INTO users (first_name, last_name, age, email, password, mobile_number) VALUES (%s, %s, %s, %s, %s, %s)"
@@ -50,6 +55,9 @@ class DataBase:
         print("User updated successfully.")
 
 d = DataBase()
-new_user = User("John", "Doe", 30, "john.doe@example.com", "password123", "1234567890")
-d.add_user(new_user)
+# new_user = User("John", "Doe", 30, "john.doe@example.com", "password123", "1234567890")
+# d.add_user(new_user)
+# d.add_user(new_user)
+# d.add_user(new_user)
+# d.add_user(new_user)
 d.get_users()

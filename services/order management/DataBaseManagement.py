@@ -1,12 +1,13 @@
 import mysql.connector
 from order import Order
 from ordered_products import orderedProducts
+from Models import *
 
 # user=input("User: ")
 # password=input("Password: ")
 
 user = 'root'
-password = 'yasmine123@'
+password = 'Ahmed#123456789'
 class DataBase:
     def __init__(self):
         self.db = mysql.connector.connect(
@@ -26,9 +27,11 @@ class DataBase:
     def get_orders(self):
         self.cursor.execute("SELECT * FROM orders")
         result = self.cursor.fetchall()
+        orders = []
         for x in result:
-            print(x)
-        return result
+            order_model = OrderModel(id=x[0], user_id=x[1], date=x[2], status=x[3])
+            orders.append(order_model)
+        return orders
 
     def add_order(self, order):
         sql = "INSERT INTO orders (user_id, date, status) VALUES (%s, %s, %s)"
@@ -70,9 +73,12 @@ class DataBase:
         values = (order_id,)
         self.cursor.execute(sql, values)
         result = self.cursor.fetchall()
+        ordered_products = []
         for x in result:
-            print(x)
-        return result
+            ordered_product = OrderedProductModel(order_id=x[0], product_id=x[1], amount=x[2])
+            print(ordered_product)
+            ordered_products.append(ordered_product)
+        return ordered_products
 
     def update_ordered_product(self, ordered_product):
         sql = "UPDATE ordered_products SET amount = %s WHERE order_id = %s AND product_id = %s"
@@ -81,13 +87,19 @@ class DataBase:
         self.db.commit()
         print("Ordered product updated successfully")
 
-d = DataBase()
+# d = DataBase()
+# d.get_orders()
+# d.get_ordered_products(4)
 
 # product = orderedProducts(order_id=4, product_id=4, amount=2)
 # d.add_product_to_order(product)
 
 # order = Order(user_id=1, date='2024-05-05', status='Pending')
 # d.add_order(order)
+# d.add_order(order)
+# d.add_order(order)
+# d.add_order(order)
+
 # existing_order = Order(user_id=1, date='2024-05-05', status='Delivered', id=2)
 # d.update_order(existing_order)
 # d.get_orders()
