@@ -5,7 +5,7 @@ from user import User
 # password=input("Password: ")
 
 user = 'root'
-password = 'Ahmed#123456789'
+password = 'yasmine123@'
 class DataBase:
     def __init__(self):
         self.db = mysql.connector.connect(

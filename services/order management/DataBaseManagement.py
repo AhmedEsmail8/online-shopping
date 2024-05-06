@@ -7,7 +7,7 @@ from Models import *
 # password=input("Password: ")
 
 user = 'root'
-password = 'Ahmed#123456789'
+password = 'yasmine123@'
 class DataBase:
     def __init__(self):
         self.db = mysql.connector.connect(
@@ -90,8 +90,8 @@ class DataBase:
 # d = DataBase()
 # d.get_orders()
 # d.get_ordered_products(4)
-
-# product = orderedProducts(order_id=4, product_id=4, amount=2)
+#
+# product = orderedProducts(order_id=3, product_id=4, amount=2)
 # d.add_product_to_order(product)
 
 # order = Order(user_id=1, date='2024-05-05', status='Pending')

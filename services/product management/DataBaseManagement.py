@@ -4,7 +4,7 @@ from Models import *
 # user=input("User: ")
 # password=input("Password: ")
 user = 'root'
-password = 'Ahmed#123456789'
+password = 'yasmine123@'
 
 
 class DataBase:
@@ -13,7 +13,7 @@ class DataBase:
             host="127.0.0.1",
             user=user,
             password=password,
-            database="products_database"
+            database="online_shopping"
         )
 
         if self.db.is_connected():
@@ -138,6 +138,17 @@ class DataBase:
             print(x)
 
         return result
+
+    def find_image(self, location):
+        sql = "SELECT id FROM image WHERE file_location = %s"
+        val = (location,)
+        self.cursor.execute(sql, val)
+        result = self.cursor.fetchone()
+        if result:
+            return result[0]
+        else:
+            print("Image not found with the given location")
+            return None
 
 
 # d = DataBase()
