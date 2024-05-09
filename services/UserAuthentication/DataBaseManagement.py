@@ -23,6 +23,14 @@ class DataBase:
         self.cursor = self.db.cursor()
 
     def get_users(self):
+        self.db.close()
+        self.db = mysql.connector.connect(
+            host="127.0.0.1",
+            user=user,
+            password=password,
+            database="users_database"
+        )
+        self.cursor = self.db.cursor()
         self.cursor.execute("SELECT * FROM users")
         result = self.cursor.fetchall()
         users = []
