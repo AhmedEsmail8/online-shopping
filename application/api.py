@@ -1,27 +1,16 @@
 import requests as req
 from fastapi import FastAPI, HTTPException
 from Models import *
-# from services.UserAuthentication import DataBaseManagement as user_database
-import json
 
 # The API endpoint
-order_management_url = "http://127.0.0.1:8080"
-product_management_url = "http://127.0.0.1:3000"
-user_url = "http://127.0.0.1:8001"
+order_management_url = "http://order-service:8080"
+product_management_url = "http://product-service:3030"
+user_url = "http://user-service:8001"
 
 app = FastAPI()
 
 
 class HelperFunctions:
-
-    # <editor-fold desc="User">
-    @staticmethod
-    def user_email_exist(email):
-        users = req.get(user_url).json()
-        for u in users:
-            if u['email'] == email:
-                return True
-        return False
 
     @staticmethod
     def get_user_by_id(user_id):
@@ -30,27 +19,46 @@ class HelperFunctions:
             if u['id'] == user_id:
                 return u
         return None
-    # </editor-fold>
 
-@app.get("/login")
+    @staticmethod
+    def get_product_by_id(product_id):
+        products = req.get(product_management_url).json()
+        for product in products:
+            if product['id'] == product_id:
+                return product
+        return None
+
+    @staticmethod
+    def get_order_by_id(product_id):
+        orders = req.get(order_management_url).json()
+        for order in orders:
+            if order['id'] == product_id:
+                return order
+        return None
+
+
+@app.get("/")
 async def get_users():
     return req.get(user_url).json()
 
 
+@app.post("/login")
+async def login(email: str, password: str):
+    users = req.get(user_url).json()
+    for user in users:
+        if user['email'] == email and user['password'] == password:
+            return user
+    raise HTTPException(status_code=401, detail="Invalid email or password")
+
+
 @app.post("/register")
 async def add_user(user: UserModel):
-    if HelperFunctions.user_email_exist(user.email):
-        raise HTTPException(status_code=400, detail="Email already exists")
     return req.post(user_url, json=user.dict()).json()
 
 
 @app.put("/{user_id}/profile")
 async def update_user(user_id, user: UserModel):
     user.id = user_id
-    if HelperFunctions.get_user_by_id(user.id) is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    if HelperFunctions.get_user_by_id(user.id)['email'] != user.email and HelperFunctions.user_email_exist(user.email):
-        raise HTTPException(status_code=400, detail="Email already exists")
     return req.put(user_url, json=user.dict()).json()
 
 
@@ -89,6 +97,12 @@ async def get_orders():
 
 @app.post("/{user_id}/cart")
 async def add_order(user_id, order: OrderModel):
+    if HelperFunctions.get_user_by_id(int(user_id)) is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    for product in order.ordered_products:
+        if HelperFunctions.get_product_by_id(product.product_id) is None:
+            raise HTTPException(status_code=404, detail="product not found")
+
     order.user_id = user_id
     order.date = order.date.isoformat()
     return req.post(order_management_url, json=order.dict()).json()
@@ -98,6 +112,17 @@ async def add_order(user_id, order: OrderModel):
 async def update_order(user_id, order_id, order: OrderModel):
     order.user_id = user_id
     order.id = order_id
+    for product in order.ordered_products:
+        product.order_id = order_id
+
+    if HelperFunctions.get_user_by_id(int(user_id)) is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    if HelperFunctions.get_order_by_id(int(order_id)) is None:
+        raise HTTPException(status_code=404, detail="order not found")
+    for product in order.ordered_products:
+        if HelperFunctions.get_product_by_id(product.product_id) is None:
+            raise HTTPException(status_code=404, detail="product not found")
+
     order.date = order.date.isoformat()
     return req.put(order_management_url, json=order.dict()).json()
 
@@ -110,16 +135,20 @@ async def delete_order(order_id: int):
 
 @app.get("/{user_id}/orders/{order_id}")
 async def get_ordered_products(user_id, order_id):
+    if HelperFunctions.get_user_by_id(int(user_id)) is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    if HelperFunctions.get_order_by_id(int(order_id)) is None:
+        raise HTTPException(status_code=404, detail="order not found")
     return req.get(f"{order_management_url}/{order_id}").json()
 
 
 @app.delete("/{user_id}/orders/{order_id}")
 async def delete_ordered_products(user_id, order_id, product_id: int):
+    if HelperFunctions.get_user_by_id(int(user_id)) is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    if HelperFunctions.get_order_by_id(int(order_id)) is None:
+        raise HTTPException(status_code=404, detail="order not found")
+    if HelperFunctions.get_product_by_id(int(product_id)) is None:
+        raise HTTPException(status_code=404, detail="product not found")
     data = {"item_id": product_id}
     return req.delete(f"{order_management_url}/{order_id}", params=data).json()
-
-
-# @app.get("/{user_id}/orders")
-# @app.get("/admin/orders")
-# async def get_orders():
-#     return req.get(order_management_url).json()

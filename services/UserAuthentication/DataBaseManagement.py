@@ -1,36 +1,13 @@
-import mysql.connector
+import sqlite3
 from Models import *
-from user import User
-# user=input("User: ")
-# password=input("Password: ")
+# from user import User
 
-user = 'root'
-password = 'Ahmed#123456789'
 class DataBase:
     def __init__(self):
-        self.db = mysql.connector.connect(
-            host="127.0.0.1",
-            user=user,
-            password=password,
-            database="users_database"
-        )
-
-        if self.db.is_connected():
-            print("Connected Successfully")
-        else:
-            print("Failed to connect")
-
+        self.db = sqlite3.connect("users_database.db")
         self.cursor = self.db.cursor()
 
     def get_users(self):
-        self.db.close()
-        self.db = mysql.connector.connect(
-            host="127.0.0.1",
-            user=user,
-            password=password,
-            database="users_database"
-        )
-        self.cursor = self.db.cursor()
         self.cursor.execute("SELECT * FROM users")
         result = self.cursor.fetchall()
         users = []
@@ -43,7 +20,7 @@ class DataBase:
 
     def add_user(self, user):
         sql = "INSERT INTO users (first_name, last_name, age, email, password, mobile_number, image, address)" \
-              " VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+              " VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
         val = (user.first_name, user.last_name, user.age, user.email, user.password, user.mobile_number, user.image,
                user.address)
         self.cursor.execute(sql, val)
@@ -53,14 +30,14 @@ class DataBase:
         return inserted_id
 
     def delete_user(self, id):
-        sql = f"DELETE FROM users WHERE id = {id}"
-        self.cursor.execute(sql)
+        sql = "DELETE FROM users WHERE id = ?"
+        self.cursor.execute(sql, (id,))
         self.db.commit()
         print("User deleted successfully.")
 
     def update_user(self, user):
-        sql = "UPDATE users SET first_name = %s, last_name = %s, age = %s, email = %s, password = %s," \
-              " mobile_number = %s, image = %s, address = %s WHERE id = %s"
+        sql = "UPDATE users SET first_name = ?, last_name = ?, age = ?, email = ?, password = ?," \
+              " mobile_number = ?, image = ?, address = ? WHERE id = ?"
         val = (user.first_name, user.last_name, user.age, user.email, user.password, user.mobile_number,
                user.image, user.address, user.id)
         self.cursor.execute(sql, val)
@@ -68,33 +45,35 @@ class DataBase:
         print("User updated successfully.")
 
     def get_user_by_id(self, id):
-        users = self.get_users()
-        for user in users:
-            if user.id==id:
-                return user
-
-        return None
+        self.cursor.execute("SELECT * FROM users WHERE id = ?", (id,))
+        result = self.cursor.fetchone()
+        if result:
+            user_model = UserModel(id=result[0], email=result[1], password=result[2], first_name=result[3],
+                                   last_name=result[4], age=result[5], mobile_number=result[6], image=result[7],
+                                   address=result[8])
+            return user_model
+        else:
+            return None
 
     def is_email_exist(self, email):
-        users = self.get_users()
-        for user in users:
-            if user.email == email:
-                return True
+        self.cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
+        result = self.cursor.fetchone()
+        if result:
+            return True
+        else:
+            return False
 
-        return False
-
+# Example usage:
 # d = DataBase()
 # d.delete_user(1)
 # d.delete_user(2)
 # d.delete_user(3)
 # d.delete_user(4)
-
-# user = User(email='john.doe@example.com', password='password123', first_name='John', last_name='Doe', age=30,
-#                  mobile_number='1234567890', image='blablabla')
+# user = User(email='john.doe@example.com', password='password123',
+#             first_name='John', last_name='Doe', age=30,
+#             mobile_number='1234567890', image='blablabla', address='Address')
 # d.add_user(user)
-# new_user = User("John", "Doe", 30, "john.doe@example.com", "password123", "1234567890")
-# d.add_user(new_user)
-# d.add_user(new_user)
-# d.add_user(new_user)
+# new_user = User("John", "Doe", 30, "john.doe@example.com",
+#                 "password123", "1234567890", "blablabla", "Address")
 # d.add_user(new_user)
 # d.get_users()

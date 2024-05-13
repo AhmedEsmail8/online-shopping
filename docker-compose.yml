@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  user-service:
+    container_name: user-service
+    image: user-img
+    ports:
+      - "3000:8001"
+    networks:
+      - app-net
+
+  product-service:
+    container_name: product-service
+    image: products-img
+    ports:
+      - "8001:3030"
+    networks:
+      - app-net
+
+  order-service:
+    container_name: order-service
+    image: order-img
+    ports:
+      - "8000:8080"
+    networks:
+      - app-net
+
+  application:
+    container_name: application
+    image: app-img
+    ports:
+      - "3030:3000"
+    networks:
+      - app-net
+    depends_on:
+      - user-service
+      - product-service
+      - order-service
+
+networks:
+  app-net:
+    driver: bridge
