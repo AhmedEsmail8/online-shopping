@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: product-service-replicaset
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: product-service
+  template:
+    metadata:
+      labels:
+        app: product-service
+    spec:
+      containers:
+      - name: product-container
+        image: products-img
+        ports:
+        - containerPort: 3030
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "0.5"

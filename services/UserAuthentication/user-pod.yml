@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: user-service-pod
+spec:
+  containers:
+  - name: user-container
+    image: user-img
+    ports:
+    - containerPort: 8001
+    resources:
+      limits:
+        memory: "128Mi"
+        cpu: "0.5"

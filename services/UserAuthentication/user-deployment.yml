@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+      - name: user-container
+        image: user-img
+        ports:
+        - containerPort: 8001
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "0.5"

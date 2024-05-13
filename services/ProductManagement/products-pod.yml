@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: product-service-pod
+spec:
+  containers:
+  - name: product-container
+    image: products-img
+    ports:
+    - containerPort: 3030
+    resources:
+      limits:
+        memory: "128Mi"
+        cpu: "0.5"
